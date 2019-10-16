@@ -15,11 +15,20 @@ module Script where
             rest = drop (length nameAsStr + 1) t
         in (nameAsStr, rest)
 
-    available :: String -> Either (String, String) (Int, Int)
+    available :: String -> Either String (Int, Int, String)
     available ('{':t) = 
         let (pr, pab) = getStringFromBrackets t 
-        in if pr == "coord"
-                then Left ("Ok", pab)
-                else Left ("Bad", pab)
-
-
+        in if pr == "prev"
+                then 
+                    let 
+                        Right (first, second, rest) = available (drop 1 pab)
+                    in
+                        case first == second of
+                            True -> Right (first + 1, second, rest)
+                            False -> Right (first, second + 1, rest)
+                else if pr == "result"
+                    then 
+                        let (result, pab2) = getStringFromBrackets (drop 1 pab)
+                        in Right (1, 0, result)
+                    else Left "Klaida"
+                    
