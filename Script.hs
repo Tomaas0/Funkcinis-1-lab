@@ -1,34 +1,38 @@
 module Script where
+    
+import Entities
+import Parse
+import Lib
+import Control.Applicative
+import Data.List
 
-    isBracket :: Char -> Bool
-    isBracket '"' = True
-    isBracket _ = False
+checkIfMovesValid :: Msg -> Bool
+checkIfMovesValid message = not(checkIfExist playerA || checkIfExist playerB)
+  where
+    (playerA, playerB) = splitMoves message [] []
+    checkIfExist :: [(String, String)] -> Bool
+    checkIfExist [] = False
+    checkIfExist (x:coords) =
+      (x `elem` coords) || checkIfExist coords
 
-    isNotBracket :: Char -> Bool
-    isNotBracket '"' = False
-    isNotBracket _ = True
+available :: Msg -> Either String (Int, Int)
+available msg =
+    if checkIfMovesValid msg
+    then calculate msg 
+    else Left "Same move occured multiple times"
+    where
+        calculate :: Msg -> Either String (Int, Int)
+        calculate (Msg coords "" Empty) = Right (99, 100)
+        calculate (Msg coords result prev) = 
+            let 
+                Right (playerA, playerB) = calculate prev
+            in
+                case result of
+                    "HIT" -> Right (playerA - 1, playerB)
+                    "MISS" -> Right (playerB - 1, playerA)
 
-    getStringFromBrackets :: String -> (String, String)
-    getStringFromBrackets ('\"':t) = 
-        let 
-            nameAsStr = takeWhile isNotBracket t
-            rest = drop (length nameAsStr + 1) t
-        in (nameAsStr, rest)
-
-    available :: String -> Either String (Int, Int, String)
-    available ('{':t) = 
-        let (pr, pab) = getStringFromBrackets t 
-        in if pr == "prev"
-                then 
-                    let 
-                        Right (first, second, rest) = available (drop 1 pab)
-                    in
-                        case first == second of
-                            True -> Right (first + 1, second, rest)
-                            False -> Right (first, second + 1, rest)
-                else if pr == "result"
-                    then 
-                        let (result, pab2) = getStringFromBrackets (drop 1 pab)
-                        in Right (1, 0, result)
-                    else Left "Klaida"
-                    
+splitMoves :: Msg -> [(String, String)] -> [(String, String)] -> ([(String, String)], [(String, String)])
+splitMoves (Msg ('0':_, '0':_) _ Empty) playerA playerB = (playerA, playerB)
+splitMoves (Msg ('0':_, '0':_) _ prev) playerA playerB = splitMoves prev playerB playerA
+splitMoves (Msg coords _ Empty) playerA playerB = (coords : playerA, playerB)
+splitMoves (Msg coords _ prev) playerA playerB = splitMoves prev playerB (coords:playerA)

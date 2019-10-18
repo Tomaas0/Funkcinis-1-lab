@@ -1,4 +1,4 @@
-module Parser where
+module Parse where
 
     import Data.List
     import Data.Char
@@ -24,13 +24,30 @@ module Parser where
                 newMessage = case message of
                     (',':x) -> drop 1 message
                     (x) -> message
+        ('\"':'r':'e':'s':'u':'l':'t':'\"':':':message) ->
+            let 
+                Right (result, rest) = getStringFromBrackets message
+                restmsg = case rest of
+                    (',':x) -> drop 1 rest
+                    (x) -> rest
+            in
+                case result of
+                    "HIT" -> parse restmsg (Msg iniCoord result prev)
+                    "MISS" -> parse restmsg (Msg iniCoord result prev)
+                    _ -> Left "HIT or MISS expected"
         ('\"':'p':'r':'e':'v':'\"':':':message) ->
-          case parseResult message of 
-            Left error -> Left error
-            Right (result, message) ->
-              parse ("next" ++ message) newMsg 
-              where
-                newMsg =  Msg iniCoord result prev
+            let 
+                some :: Either String (String, String)
+                some = if iniRes == ""
+                    then parseResult message
+                    else Right (iniRes, message)
+            in
+            case some of 
+                Left error -> Left error
+                Right (result, message) ->
+                    parse ("next" ++ message) newMsg 
+                    where
+                    newMsg =  Msg iniCoord result prev
         ('n':'e':'x':'t':message) ->
           case createMessage message of
             Left error -> Left error
@@ -75,10 +92,22 @@ module Parser where
             Right (_, _) -> Left "End of list expected"
     parseCoords _ = Left "List opening expected"
     
+    parseCoordsAfter :: String -> Either String ((String, String), String)
+    parseCoordsAfter message = parseResultz (reverse message)
+      where 
+        parseResultz ('}':message) = parseResults (reverse(drop 7 (dropWhile (/='d') message))) ("\"coord" ++ reverse (takeWhile (/= 'd') message))
+          where 
+            parseResults message ('\"':'c':'o':'o':'r':'d':'\"':':':tempMessage) = 
+              case parseCoords tempMessage of 
+                Left error -> Left error
+                Right (result, _) -> Right (result, message)
+            parseResults _ _ = Left "Result expected"      
+        parseResultz _ = Left "End of dictionary expected"
+
     parseResult :: String -> Either String (String, String)
     parseResult message = parseResultz (reverse message)
       where 
-        parseResultz ('}':message) = parseResults (reverse(drop 8 (dropWhile (/='t') message))) ("\"result" ++ reverse (takeWhile (/= 't') message))--change
+        parseResultz ('}':message) = parseResults (reverse(drop 8 (dropWhile (/='t') message))) ("\"result" ++ reverse (takeWhile (/= 't') message))
           where 
             parseResults message ('\"':'r':'e':'s':'u':'l':'t':'\"':':':tempMessage) = 
               case getStringFromBrackets tempMessage of 
