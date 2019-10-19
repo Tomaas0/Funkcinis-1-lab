@@ -15,21 +15,24 @@ checkIfMovesValid message = not(checkIfExist playerA || checkIfExist playerB)
     checkIfExist (x:coords) =
       (x `elem` coords) || checkIfExist coords
 
-available :: Msg -> Either String (Int, Int)
-available msg =
-    if checkIfMovesValid msg
-    then calculate msg 
-    else Left "Same move occured multiple times"
-    where
-        calculate :: Msg -> Either String (Int, Int)
-        calculate (Msg coords "" Empty) = Right (99, 100)
-        calculate (Msg coords result prev) = 
-            let 
-                Right (playerA, playerB) = calculate prev
-            in
-                case result of
-                    "HIT" -> Right (playerA - 1, playerB)
-                    "MISS" -> Right (playerB - 1, playerA)
+available :: String -> Either String (Int, Int)
+available input =
+    case createMessage input of
+        Left err -> Left err
+        Right (msg, rest) ->
+            if checkIfMovesValid msg
+            then calculate msg 
+            else Left "Same move occured multiple times"
+            where
+                calculate :: Msg -> Either String (Int, Int)
+                calculate (Msg coords "" Empty) = Right (99, 100)
+                calculate (Msg coords result prev) = 
+                    let 
+                        Right (playerA, playerB) = calculate prev
+                    in
+                        case result of
+                            "HIT" -> Right (playerA - 1, playerB)
+                            "MISS" -> Right (playerB - 1, playerA)
 
 splitMoves :: Msg -> [(String, String)] -> [(String, String)] -> ([(String, String)], [(String, String)])
 splitMoves (Msg ('0':_, '0':_) _ Empty) playerA playerB = (playerA, playerB)
