@@ -39,38 +39,41 @@ module Parse where
             let 
               a = putStrLn (message)
               (coord1, coord2) = iniCoord
-              some :: (String, (String, String), String)
+              some :: Either String (String, (String, String), String)
               some = 
                 if iniRes == "" && coord1 /= "0"
                 then 
-                  let
-                    Right (r, rest) = parseResult message
-                  in
-                    (r, iniCoord, rest)
+                  case parseResult message of
+                    Left err -> Left err
+                    Right (r, rest) -> Right (r, iniCoord, rest)
                 else if iniRes /= "" && coord1 == "0"
                 then 
-                  let
-                    Right (coords, rest) = parseCoordsAfter message
-                  in
-                    (iniRes, coords, rest)
+                  case parseCoordsAfter message of
+                    Left err -> Left err
+                    Right (coords, rest) -> Right (iniRes, coords, rest)
                 else if iniRes == "" && coord1 == "0" && checkIfCoordsAtTheEnd message
                 then 
-                  let
-                    Right (c, rest1) = parseCoordsAfter message
-                    Right (r, rest) = parseResult (rest1 ++ "}")
-                  in 
-                    (r, c, rest)
+                  case parseCoordsAfter message of
+                    Left err -> Left err
+                    Right (c, rest1) -> 
+                      case parseResult (rest1 ++ "}") of
+                        Left err -> Left err
+                        Right (r, rest) -> 
+                          Right (r, c, rest)
                 else if iniRes == "" && coord1 == "0" && checkIfCoordsAtTheEnd (message) == False
                   then 
-                    let
-                      Right (r, rest1) = parseResult message
-                      Right (c, rest) = parseCoordsAfter (rest1 ++ "}")
-                    in 
-                      (r, c, rest)
-                else (iniRes, iniCoord, take (length message - 1) message)
+                  case parseResult message of
+                    Left err -> Left err
+                    Right (r, rest1) ->
+                      case parseCoordsAfter (rest1 ++ "}") of
+                        Left err -> Left err
+                        Right (c, rest) ->
+                          Right (r, c, rest)
+                else Right (iniRes, iniCoord, take (length message - 1) message)
             in
             case some of 
-                (result, coord, message) ->
+                Left err -> Left err
+                Right (result, coord, message) ->
                     parse ("next" ++ message) newMsg 
                     where
                     newMsg =  Msg coord result prev
