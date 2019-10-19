@@ -37,17 +37,43 @@ module Parse where
                     _ -> Left "HIT or MISS expected"
         ('\"':'p':'r':'e':'v':'\"':':':message) ->
             let 
-                some :: Either String (String, String)
-                some = if iniRes == ""
-                    then parseResult message
-                    else Right (iniRes, message)
+              a = putStrLn (message)
+              (coord1, coord2) = iniCoord
+              some :: (String, (String, String), String)
+              some = 
+                if iniRes == "" && coord1 /= "0"
+                then 
+                  let
+                    Right (r, rest) = parseResult message
+                  in
+                    (r, iniCoord, rest)
+                else if iniRes /= "" && coord1 == "0"
+                then 
+                  let
+                    Right (coords, rest) = parseCoordsAfter message
+                  in
+                    (iniRes, coords, rest)
+                else if iniRes == "" && coord1 == "0" && checkIfCoordsAtTheEnd message
+                then 
+                  let
+                    Right (c, rest1) = parseCoordsAfter message
+                    Right (r, rest) = parseResult (rest1 ++ "}")
+                  in 
+                    (r, c, rest)
+                else if iniRes == "" && coord1 == "0" && checkIfCoordsAtTheEnd (message) == False
+                  then 
+                    let
+                      Right (r, rest1) = parseResult message
+                      Right (c, rest) = parseCoordsAfter (rest1 ++ "}")
+                    in 
+                      (r, c, rest)
+                else (iniRes, iniCoord, take (length message - 1) message)
             in
             case some of 
-                Left error -> Left error
-                Right (result, message) ->
+                (result, coord, message) ->
                     parse ("next" ++ message) newMsg 
                     where
-                    newMsg =  Msg iniCoord result prev
+                    newMsg =  Msg coord result prev
         ('n':'e':'x':'t':message) ->
           case createMessage message of
             Left error -> Left error
@@ -103,6 +129,12 @@ module Parse where
                 Right (result, _) -> Right (result, message)
             parseResults _ _ = Left "Result expected"      
         parseResultz _ = Left "End of dictionary expected"
+    
+    checkIfCoordsAtTheEnd :: String -> Bool
+    checkIfCoordsAtTheEnd (message) = goNext (reverse message)
+      where 
+        goNext ('}' : ']' : message) = True
+        goNext (message) = False
 
     parseResult :: String -> Either String (String, String)
     parseResult message = parseResultz (reverse message)
