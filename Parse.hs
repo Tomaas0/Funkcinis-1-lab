@@ -37,7 +37,6 @@ module Parse where
                     _ -> Left "HIT or MISS expected"
         ('\"':'p':'r':'e':'v':'\"':':':message) ->
             let 
-              a = putStrLn (message)
               (coord1, coord2) = iniCoord
               some :: Either String (String, (String, String), String)
               some = 
@@ -110,7 +109,7 @@ module Parse where
     getStringFromBrackets (_) = Left "Quotation expected"
     
     parseCoords :: String -> Either String ((String, String), String)
-    parseCoords ('[':']':msg) = Right (("0", "0"), msg)
+    parseCoords ('[':']':msg) = Right (("1", "0"), msg)
     parseCoords ('[':msg) = 
       case getStringFromBrackets msg of 
         Left error1 -> Left error1
