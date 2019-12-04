@@ -2,7 +2,6 @@ module Script where
     
 import Entities
 import Parse
-import Lib
 import Control.Applicative
 import Data.List
 
