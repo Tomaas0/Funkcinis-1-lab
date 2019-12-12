@@ -3,6 +3,7 @@ module Script2 where
 
 import Parse
 import Parse2
+import Entities
 import Network.Wreq
 import Control.Lens
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -35,7 +36,7 @@ defence gameId player = do
             let mov :: String
                 mov = B.unpack (r ^. responseBody)
             putStrLn ("From request: " ++ mov)
-            case parse mov initialMsg of
+            case parse mov (Msg ("0", "0") "" Entities.Empty) of
                 Left e -> putStrLn ("parser error: " ++ e)
                 Right(msg, _) -> case makeResponse msg of
                     Left mess -> case mess of
