@@ -3,10 +3,7 @@ module Parse2 where
     import Data.List
     import Data.Char
     import Entities
-    
-    myMsg :: Msg
-    myMsg = Msg {coord = ("A","2"), result = "HIT", prev = Msg {coord = ("A","9"), result = "HIT", prev = Msg {coord = ("A","10"), result = "HIT", prev =Msg {coord = ("A","8"), result = "", prev = Empty}}}}
-    
+        
     shipsOnBoard :: [(String, String)]
     shipsOnBoard = [("F","9"), ("G","9"), ("H","9"), ("I","9"),
                         ("H","4"), ("I","4"), ("I","5"), ("J","5"),
@@ -25,9 +22,6 @@ module Parse2 where
                     ("A","8"), ("B","8"), ("C","8"), ("D","8"), ("E","8"), ("F","8"), ("G","8"), ("H","8"), ("I","8"), ("J","8"),
                     ("A","9"), ("B","9"), ("C","9"), ("D","9"), ("E","9"), ("F","9"), ("G","9"), ("H","9"), ("I","9"), ("J","9"),
                     ("A","10"), ("B","10"), ("C","10"), ("D","10"), ("E","10"), ("F","10"), ("G","10"), ("H","10"), ("I","10"), ("J","10")]
-    
-    hndMsg :: String
-    hndMsg = "{\"coord\":[\"A\",\"4\"]}"
     
     -- ======================================================================
     checkIfMovesValid :: Msg -> [String] -> [String] -> String -> Bool
