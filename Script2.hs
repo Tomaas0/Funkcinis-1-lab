@@ -8,16 +8,12 @@ import Network.Wreq
 import Control.Lens
 import qualified Data.ByteString.Lazy.Char8 as B
 
-main :: IO ()
-main = do
-    putStrLn "Enter game Id"
-    gameId <- getLine
-    putStrLn "attack(0) or defence(1)?"
-    gameMode <- getLine
+main :: String -> String -> IO ()
+main gameId gameMode = do
     case gameMode of
-        "0" -> attack gameId
-        "1" -> defence gameId "B"
-        _ -> putStrLn "wrong choice"
+        "attack" -> attack gameId
+        "defence" -> defence gameId "B"
+        _ -> putStrLn "Game mode has to be \"attack\" or \"defence\""
 
 attack :: String -> IO()
 attack gameId = do
@@ -44,12 +40,12 @@ defence gameId player = do
                             putStrLn ("Won: " ++ rest)
                             -- let opts = defaults & header "Content-type" .~ ["application/json"]
                             -- postWith opts ("http://battleship.haskell.lt/game/" ++ gameId ++ "/player/" ++ player) $ B.pack rest
-                            putStrLn "Yeeee boooy!"
+                            putStrLn "I just won the game."
                         'L' : 'o' : 's' : 't' : rest -> do
                             putStrLn ("Lost: " ++ rest)
                             let opts = defaults & header "Content-type" .~ ["application/json"]
                             postWith opts ("http://battleship.haskell.lt/game/" ++ gameId ++ "/player/" ++ player) $ B.pack rest
-                            putStrLn ":(((("
+                            putStrLn "I lost the game..."
                         error -> putStrLn error
                     Right mess -> do
                         putStrLn("makeResponse: " ++ mess)
