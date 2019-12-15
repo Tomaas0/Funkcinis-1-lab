@@ -38,8 +38,6 @@ defence gameId player = do
                     Left mess -> case mess of
                         'W' : 'o' : 'n' : rest -> do
                             putStrLn ("Won: " ++ rest)
-                            -- let opts = defaults & header "Content-type" .~ ["application/json"]
-                            -- postWith opts ("http://battleship.haskell.lt/game/" ++ gameId ++ "/player/" ++ player) $ B.pack rest
                             putStrLn "I just won the game."
                         'L' : 'o' : 's' : 't' : rest -> do
                             putStrLn ("Lost: " ++ rest)

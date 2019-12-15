@@ -23,7 +23,6 @@ module Parse2 where
                     ("A","9"), ("B","9"), ("C","9"), ("D","9"), ("E","9"), ("F","9"), ("G","9"), ("H","9"), ("I","9"), ("J","9"),
                     ("A","10"), ("B","10"), ("C","10"), ("D","10"), ("E","10"), ("F","10"), ("G","10"), ("H","10"), ("I","10"), ("J","10")]
     
-    -- ======================================================================
     checkIfMovesValid :: Msg -> [String] -> [String] -> String -> Bool
     checkIfMovesValid (Msg (c1, c2) _ Empty) usedA usedB switch =
         if switch == "A"
@@ -78,7 +77,6 @@ module Parse2 where
     isHit ships coord = if coord `elem` ships then True else False
     
     buildMsg :: Msg -> Either String Msg
-    --buildMsg msg = Right (Msg (makeMove fullBoard (getUsedMoves msg)) (if isHit shipsOnBoard (getCoord msg) then "HIT" else "MISS") msg)
     buildMsg msg = if getResult msg
         then
             Right (Msg (optimizeAttack msg (getPrev msg)) (if isHit shipsOnBoard (getCoord msg) then "HIT" else "MISS") msg)        
