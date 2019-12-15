@@ -8,6 +8,7 @@ module Parse2 where
     shipsOnBoard = [("A","1"), ("B","1"), ("C","1"), ("B","2"), ("B","3"),
                         ("A","10"), ("B","10"), ("C","10"), ("B","9"), ("B","8"),
                         ("C","5"), ("D","5"), ("E","5"), ("D","3"), ("D","4"),
+                        ("J","7"), ("J","8"), ("J","9"), ("I","8"), ("H","8"),
                         ("E","1"), ("F","1"), ("G","1"), ("F","2"), ("F","3")]
     
     fullBoard :: [(String, String)]
@@ -128,12 +129,12 @@ module Parse2 where
     makeResponse :: Msg -> Either String String
     makeResponse msg = case score msg of
         Left e -> Left e
-        Right (20, _) -> Left ("Lost" ++ (encode msg))
-        Right (_, 20) -> Left ("Won" ++ (encode (Msg ("0", "0") (if isHit shipsOnBoard (getCoord msg) then "HIT" else "MISS") msg)))
+        Right (25, _) -> Left ("Lost" ++ (encode msg))
+        Right (_, 25) -> Left ("Won" ++ (encode (Msg ("0", "0") (if isHit shipsOnBoard (getCoord msg) then "HIT" else "MISS") msg)))
         Right (_, _) -> case buildMsg msg of
             Left e -> Left e
             Right rMsg -> case score rMsg of
                 Left e -> Left e
-                Right (_, 20) -> Left ("Lost" ++ (encode (Msg ("0", "0") "HIT" msg)))
-                Right (20, _) -> Left ("Won" ++ (encode (Msg ("0", "0") (if isHit shipsOnBoard (getCoord msg) then "HIT" else "MISS") msg)))
+                Right (_, 25) -> Left ("Lost" ++ (encode (Msg ("0", "0") "HIT" msg)))
+                Right (25, _) -> Left ("Won" ++ (encode (Msg ("0", "0") (if isHit shipsOnBoard (getCoord msg) then "HIT" else "MISS") msg)))
                 Right (_, _) -> Right (encode rMsg)
